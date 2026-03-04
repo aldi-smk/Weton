@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generator Weton Jawa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- (Opsional) Font Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&family=Signika:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      background:
+        radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.05) 0, rgba(255, 255, 255, 0.05) 2px, transparent 2px),
+        radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.06) 0, rgba(255, 255, 255, 0.06) 3px, transparent 3px),
+        linear-gradient(135deg, #3b1f0c, #5b3315, #8b5a2b);
+      background-size: 40px 40px, 60px 60px, cover;
+      font-family: "Signika", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #fefce8;
+    }
+
+    main.app-shell {
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    header.app-header {
+      text-align: center;
+      position: relative;
+      padding-bottom: 8px;
+    }
+
+    header.app-header::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 1px;
+      width: 80%;
+      background: linear-gradient(to right, transparent, #facc15, transparent);
+      bottom: 0;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(250, 204, 21, 0.8);
+      background: rgba(23, 15, 5, 0.6);
+      backdrop-filter: blur(8px);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #facc15;
+      margin-bottom: 8px;
+    }
+
+    .header-badge-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #f97316;
+      box-shadow: 0 0 8px rgba(248, 113, 22, 0.9);
+    }
+
+    .header-title {
+      font-family: "Noto Serif", "Times New Roman", serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #fef9c3;
+      margin-bottom: 4px;
+    }
+
+    .header-subtitle {
+      font-size: 0.9rem;
+      color: #f1e3bd;
+    }
+
+    .header-subtitle span.aksara {
+      font-size: 1.1rem;
+      margin-left: 4px;
+      opacity: 0.85;
+    }
+
+    /* LAYOUT KIRI–KANAN */
+    section.app-layout {
+      margin-top: 8px;
+      flex: 1;
+      display: flex;
+      gap: 20px;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+
+    section.panel-left,
+    aside.panel-right {
+      border-radius: 20px;
+      background: rgba(23, 15, 5, 0.65);
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(250, 204, 21, 0.18);
+      border: 1px solid rgba(92, 64, 32, 0.9);
+      padding: 16px 18px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    section.panel-left::before,
+    aside.panel-right::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(135deg, rgba(234, 179, 8, 0.08) 1px, transparent 1px),
+        linear-gradient(45deg, rgba(234, 179, 8, 0.05) 1px, transparent 1px);
+      background-size: 12px 12px;
+      opacity: 0.7;
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+    }
+
+    section.panel-left {
+      flex: 1 1 280px;
+      min-width: 260px;
+    }
+
+    aside.panel-right {
+      flex: 1.9 1 460px;   /* gambar jauh lebih besar */
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: stretch;
+    }
+
+    /* PANEL KIRI: FORM + DESKRIPSI */
+    header.panel-header {
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel-title {
+      font-family: "Noto Serif", serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fef9c3;
+    }
+
+    .panel-subtitle {
+      font-size: 0.78rem;
+      color: #facc15;
+    }
+
+    .panel-subtitle span {
+      opacity: 0.9;
+    }
+
+    section.form-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: #fefce8;
+      font-weight: 600;
+    }
+
+    input[type="date"] {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 12px;
+      border: 1px solid rgba(250, 204, 21, 0.8);
+      font-size: 0.95rem;
+      color: #111827;
+      outline: none;
+      background: #fefce8;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.05s;
+    }
+
+    input[type="date"]:focus {
+      border-color: #f97316;
+      box-shadow: 0 0 0 1px rgba(248, 113, 22, 0.7);
+      transform: translateY(-1px);
+    }
+
+    button#btn-generate {
+      margin-top: 4px;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: radial-gradient(circle at 0 0, #facc15, #ea580c);
+      color: #1f2937;
+      box-shadow:
+        0 13px 28px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(254, 249, 195, 0.4);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    button#btn-generate:hover {
+      filter: brightness(1.05);
+      box-shadow:
+        0 15px 32px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(254, 240, 138, 0.6);
+      transform: translateY(-1px);
+    }
+
+    button#btn-generate:active {
+      transform: translateY(1px);
+      box-shadow:
+        0 8px 16px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(234, 179, 8, 0.6);
+    }
+
+    p.info {
+      font-size: 0.78rem;
+      color: #fef9c3;
+      margin-top: 6px;
+      line-height: 1.45;
+      position: relative;
+      z-index: 1;
+    }
+
+    p.info strong {
+      color: #fde047;
+    }
+
+    p#error {
+      margin-top: 6px;
+      font-size: 0.78rem;
+      color: #fecaca;
+      display: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    p#error::before {
+      content: "⚠ ";
+    }
+
+    section.desc-wrap {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(250, 204, 21, 0.5);
+      position: relative;
+      z-index: 1;
+    }
+
+    .desc-title {
+      font-family: "Noto Serif", serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fef9c3;
+      margin-bottom: 4px;
+    }
+
+    p#weton-desc {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      line-height: 1.45;
+    }
+
+    /* PANEL KANAN: HASIL + ILUSTRASI BESAR */
+    section#result {
+      border-radius: 16px;
+      border: 1px dashed rgba(250, 204, 21, 0.6);
+      background: radial-gradient(circle at top, rgba(250, 250, 249, 0.08), transparent 55%);
+      padding: 10px 12px 12px;
+      display: none;
+      height: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    header.result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    p#weton-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fefce8;
+    }
+
+    p#weton-date {
+      font-size: 0.78rem;
+      color: #fde68a;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    p#result-caption {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      margin-bottom: 8px;
+    }
+
+    figure.image-wrapper {
+      border-radius: 14px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 0 0, rgba(254, 240, 138, 0.2), transparent 55%),
+        #111827;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 380px;         /* gambar lebih tinggi */
+      height: calc(100% - 60px); /* tetap fleksibel */
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      position: relative;
+    }
+
+    figure.image-wrapper::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.7);
+      pointer-events: none;
+    }
+
+    img#weton-image {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    figcaption.figcaption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 4px 10px 6px;
+      font-size: 0.72rem;
+      color: #e5e7eb;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
+      text-align: right;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      main.app-shell {
+        padding: 14px;
+      }
+
+      .header-title {
+        font-size: 1.6rem;
+      }
+
+      section.app-layout {
+        flex-direction: column;
+      }
+
+      aside.panel-right {
+        order: 2;
+        min-height: 320px;
+      }
+
+      figure.image-wrapper {
+        min-height: 320px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header.app-header {
+        padding-bottom: 4px;
+      }
+
+      header.app-header::before {
+        width: 95%;
+      }
+
+      .header-title {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <!-- HEADER ATAS -->
+    <header class="app-header">
+      <span class="header-badge">
+        <span class="header-badge-dot"></span>
+        Weton Jawa • Ilustrasi
+      </span>
+      <h1 class="header-title">Pangalih Weton Kelahiran</h1>
+      <p class="header-subtitle">
+        Masukkan tanggal lahir, temukan kombinasi
+        <strong>hari &amp; pasaran</strong> Jawa
+        <span class="aksara">ꦮꦺꦠꦺꦴꦤ꧀</span>
+      </p>
+    </header>
+
+    <!-- LAYOUT KIRI–KANAN -->
+    <section class="app-layout">
+      <!-- KIRI: FORM + DESKRIPSI -->
+      <section class="panel-left">
+        <header class="panel-header">
+          <p class="panel-title">Tanggal Lahir Masehi</p>
+          <p class="panel-subtitle">
+            Pilih tanggal, lalu tekan <span>“Generate Weton”</span>
+          </p>
+        </header>
+
+        <section class="form-wrap" aria-label="Form input tanggal weton">
+          <section>
+            <label for="tanggal">Tanggal</label><br />
+            <input type="date" id="tanggal" />
+          </section>
+
+          <button id="btn-generate" type="button">
+            Generate Weton &amp; Ilustrasi
+          </button>
+        </section>
+
+        <p class="info">
+          Tersedia <strong>35 ilustrasi</strong> (7 hari × 5 pasaran).
+          <br />
+          Pola nama file:
+          <strong>senin_legi.png, rabu_wage.png, sabtu_kliwon.png</strong>, dst.
+        </p>
+
+        <p id="error"></p>
+
+        <!-- DESKRIPSI DI BAWAH FORM -->
+        <section class="desc-wrap">
+          <p class="desc-title">Deskripsi Weton</p>
+          <p id="weton-desc">
+            Deskripsi untuk weton akan muncul di sini setelah kamu memilih tanggal.
+            Kamu bisa mengubah teks per kombinasi weton di bagian skrip JavaScript.
+          </p>
+        </section>
+      </section>
+
+      <!-- KANAN: HASIL & GAMBAR BESAR -->
+      <aside class="panel-right" aria-label="Hasil perhitungan weton">
+        <section id="result" aria-live="polite">
+          <header class="result-header">
+            <p id="weton-text">—</p>
+            <p id="weton-date">—</p>
+          </header>
+          <p id="result-caption"></p>
+
+          <figure class="image-wrapper">
+            <img id="weton-image" alt="Ilustrasi weton" />
+            <figcaption class="figcaption">
+              Ilustrasi khusus kombinasi weton kamu.
+            </figcaption>
+          </figure>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const hariMap = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const pasaranMap = ["Legi", "Pahing", "Pon", "Wage", "Kliwon"];
+
+    // Di sini kamu bisa isi deskripsi per kombinasi weton
+    // key: "senin_legi", "sabtu_kliwon", dst.
+    const deskripsiWeton = {
+      // Contoh:
+      // "senin_legi": "Orang dengan weton Senin Legi dikenal ...",
+      // "selasa_kliwon": "Selasa Kliwon melambangkan ...",
+    };
+
+    function hitungWeton(dateStr) {
+      const [year, month, day] = dateStr.split("-").map(Number);
+      const target = new Date(year, month - 1, day);
+
+      const hariIndex = target.getDay(); // 0=Min, 1=Senin, ...
+      const hari = hariMap[hariIndex];
+
+      // Patokan 17 Agustus 1945 = Jumat Legi
+      const epoch = new Date(1945, 7, 17);
+      const diffTime = target.getTime() - epoch.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      const pasaranIndex = ((diffDays % 5) + 5) % 5;
+      const pasaran = pasaranMap[pasaranIndex];
+
+      return { hari, pasaran, tanggalObj: target };
+    }
+
+    function formatTanggalIndo(dateObj) {
+      const d = dateObj.getDate().toString().padStart(2, "0");
+      const m = (dateObj.getMonth() + 1).toString().padStart(2, "0");
+      const y = dateObj.getFullYear();
+      return `${d}-${m}-${y}`;
+    }
+
+    document.getElementById("btn-generate").addEventListener("click", () => {
+      const input = document.getElementById("tanggal");
+      const errorEl = document.getElementById("error");
+      const resultEl = document.getElementById("result");
+      const descEl = document.getElementById("weton-desc");
+
+      errorEl.style.display = "none";
+      errorEl.textContent = "";
+
+      const dateStr = input.value;
+      if (!dateStr) {
+        errorEl.textContent = "Silakan pilih tanggal terlebih dahulu.";
+        errorEl.style.display = "block";
+        resultEl.style.display = "none";
+        return;
+      }
+
+      const { hari, pasaran, tanggalObj } = hitungWeton(dateStr);
+
+      const key = `${hari.toLowerCase()}_${pasaran.toLowerCase()}`;
+      const fileName = `${key}.png`;
+      const imgPath = `img/${fileName}`;
+
+      const wetonTextEl = document.getElementById("weton-text");
+      const wetonDateEl = document.getElementById("weton-date");
+      const captionEl = document.getElementById("result-caption");
+      const imgEl = document.getElementById("weton-image");
+
+      wetonTextEl.textContent = `${hari} ${pasaran}`;
+      wetonDateEl.textContent = formatTanggalIndo(tanggalObj);
+      captionEl.textContent =
+        `Weton kamu adalah ${hari} ${pasaran}. Ilustrasi berikut menggambarkan karakter dan nuansa dari kombinasi weton tersebut.`;
+
+      // Deskripsi di bawah form
+      if (deskripsiWeton[key]) {
+        descEl.textContent = deskripsiWeton[key];
+      } else {
+        descEl.textContent =
+          `Belum ada deskripsi khusus untuk weton ${hari} ${pasaran}. ` +
+          `Silakan isi object "deskripsiWeton" di skrip untuk menambahkan teks yang sesuai.`;
+      }
+
+      imgEl.src = imgPath;
+      imgEl.alt = `Ilustrasi weton ${hari} ${pasaran}`;
+
+      imgEl.onerror = () => {
+        errorEl.textContent =
+          `Gambar untuk kombinasi "${hari} ${pasaran}" tidak ditemukan (${imgPath}). ` +
+          `Pastikan file sudah ada dan nama file sesuai pola hari_pasaran.`;
+        errorEl.style.display = "block";
+      };
+
+      resultEl.style.display = "block";
+    });
+  </script>
+</body>
+</html>
